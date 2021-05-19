@@ -1,0 +1,277 @@
+---
+title: "int_fall20bmp1"
+author: "Kristen Bretz"
+date: "January 4, 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(anytime)
+```
+
+time at end after sensors pulled trimmed off each csv
+cols:
+datetime (factor)
+temp_f 
+int 
+
+matching modified old hobos to JP's newer pendants or to location in McDH
+#ds6=MS2
+#25=MS6
+#41=MS7
+#39=in waterfall 
+#21=on sonde
+
+```{r}
+#*#* 21 tied to the sonde, vis on camera
+sonde21c_fall20bmp1 <- read.csv("C:/Users/krist/OneDrive/Desktop/BMP1/20201230_sonde21c_bmp1_20011684.csv")
+
+#change datetime to POSIX
+sonde21c_fall20bmp1$dt <- anytime(as.factor(sonde21c_fall20bmp1$datetime))
+
+#convert F to C
+sonde21c_fall20bmp1$temp_c <- (sonde21c_fall20bmp1$temp_F - 32)*(5/9)
+
+#convert int to relative conductivity
+##find max int value
+max21 <- max(sonde21c_fall20bmp1$int, na.rm = TRUE)
+sonde21c_fall20bmp1$RC <- (sonde21c_fall20bmp1$int/max21)*100
+
+sonde21c_fall20bmp1
+#write.csv(sonde21c_fall20bmp1, "C:/Users/krist/OneDrive/Desktop/BMP1/sonde21c_fall20bmp1.csv")
+```
+
+```{r}
+#*#* 6 farthest downstream, near road, right above conf with orange stream
+ds6_fall20bmp1 <- read.csv("C:/Users/krist/OneDrive/Desktop/BMP1/20201230_downstream6_bmp1_20011682.csv")
+
+#change datetime to POSIX
+ds6_fall20bmp1$dt <- anytime(as.factor(ds6_fall20bmp1$datetime))
+
+#convert F to C
+ds6_fall20bmp1$temp_c <- (ds6_fall20bmp1$temp_F - 32)*(5/9)
+
+#convert int to relative conductivity
+##find max int value
+max6 <- max(ds6_fall20bmp1$int, na.rm = TRUE)
+ds6_fall20bmp1$RC <- (ds6_fall20bmp1$int/max6)*100
+
+ds6_fall20bmp1
+#write.csv(ds6_fall20bmp1, "C:/Users/krist/OneDrive/Desktop/BMP1/ds6_fall20bmp1.csv")
+```
+
+```{r}
+#*#* 25 ~10m below sonde pool, was dry at deployment
+
+dry25_fall20bmp1 <- read.csv("C:/Users/krist/OneDrive/Desktop/BMP1/20201230_drychannel25_bmp1_20011677.csv")
+
+#change datetime to POSIX
+dry25_fall20bmp1$dt <- anytime(as.factor(dry25_fall20bmp1$datetime))
+
+#convert F to C
+dry25_fall20bmp1$temp_c <- (dry25_fall20bmp1$temp_F - 32)*(5/9)
+
+#convert int to relative conductivity
+##find max int value
+max25 <- max(dry25_fall20bmp1$int, na.rm = TRUE)
+dry25_fall20bmp1$RC <- (dry25_fall20bmp1$int/max25)*100
+
+dry25_fall20bmp1
+#write.csv(dry25_fall20bmp1, "C:/Users/krist/OneDrive/Desktop/BMP1/dry25_fall20bmp1.csv")
+```
+
+```{r}
+#*#* 39 above sonde pool, wedged in rock, can see with camera
+#!! could be problem with sensor, values all low even though should have been inundated most of the time?
+
+abovepool39_fall20bmp1 <- read.csv("C:/Users/krist/OneDrive/Desktop/BMP1/20201230_abovepool39c_bmp1_20011699.csv")
+
+#change datetime to POSIX
+abovepool39_fall20bmp1$dt <- anytime(as.factor(abovepool39_fall20bmp1$datetime))
+
+#convert F to C
+abovepool39_fall20bmp1$temp_c <- (abovepool39_fall20bmp1$temp_F - 32)*(5/9)
+
+#convert int to relative conductivity
+##find max int value
+max39 <- max(abovepool39_fall20bmp1$int, na.rm = TRUE)
+abovepool39_fall20bmp1$RC <- (abovepool39_fall20bmp1$int/max39)*100
+
+abovepool39_fall20bmp1
+#write.csv(abovepool39_fall20bmp1, "C:/Users/krist/OneDrive/Desktop/BMP1/abovepool39_fall20bmp1.csv")
+```
+
+```{r}
+#*#* 41 at sonde pool on shallower side, nearer camera (visible)
+#!! these are weirdly high esp at start?? was certainly underwater at take out
+
+ss41_fall20bmp1 <- read.csv("C:/Users/krist/OneDrive/Desktop/BMP1/20201230_shallowside41c_bmp1_20011701.csv")
+
+#change datetime to POSIX
+ss41_fall20bmp1$dt <- anytime(as.factor(ss41_fall20bmp1$datetime))
+
+#convert F to C
+ss41_fall20bmp1$temp_c <- (ss41_fall20bmp1$temp_F - 32)*(5/9)
+
+#convert int to relative conductivity
+##find max int value
+max41 <- max(ss41_fall20bmp1$int, na.rm = TRUE)
+ss41_fall20bmp1$RC <- (ss41_fall20bmp1$int/max41)*100
+
+ss41_fall20bmp1
+#write.csv(ss41_fall20bmp1, "C:/Users/krist/OneDrive/Desktop/BMP1/ss41_fall20bmp1.csv")
+```
+
+###
+Daily determination of wet/dry to compare with JP&Kelly method
+
+**((JANUARY OR EARLY 2021 SHIT))**
+work with dates
+```{r}
+#extract date from dt POSIXct value
+#ds6=MS2
+#25=MS6
+#41=MS7
+#39=in waterfall 
+#21=on sonde
+
+#GETS JUST DAYS FOR EACH DF
+ds6_fall20bmp1$date <- as.Date(ds6_fall20bmp1$dt, "EST")
+dry25_fall20bmp1$date <- as.Date(dry25_fall20bmp1$dt, "EST")
+ss41_fall20bmp1$date <- as.Date(ss41_fall20bmp1$dt, "EST")
+abovepool39_fall20bmp1$date <- as.Date(abovepool39_fall20bmp1$dt, "EST")
+sonde21c_fall20bmp1$date <- as.Date(sonde21c_fall20bmp1$dt, "EST")
+
+```
+for each date, need a mean(?) of int value to compare to a lower value of wet (50 or 100)
+  (OR an RC value below certain threshold?)
+  start with raw int for simplicity, see if days wildly different using either method later 
+```{r}
+MS2_ds6 <- ds6_fall20bmp1 %>% select(date, int, RC, temp_c)
+
+```
+
+**((MAY 2021 SHIT))**
+```{r}
+#combine all the dfs
+#, dry25_fall20bmp1, ss41_fall20bmp1, abovepool39_fall20bmp1, sonde21c_fall20bmp1
+head(ds6_fall20bmp1)
+
+#add location tag to each df
+ds6_fall20bmp1$site <- "MS2"
+dry25_fall20bmp1$site <- "MS6"
+ss41_fall20bmp1$site <- "MS7"
+abovepool39_fall20bmp1$site <- "waterfall"
+sonde21c_fall20bmp1$site <- "sonde"
+
+#pile em to heaven
+
+str(abovepool39_fall20bmp1)
+#remove X from above pool and sonde
+str(sonde21c_fall20bmp1)#ds6_fall20bmp1, dry25_fall20bmp1, ss41_fall20bmp1, abovepool39_fall20bmp1, sonde21c_fall20bmp1)
+
+abovepool39_fall20bmp1[5] <- NULL
+sonde21c_fall20bmp1[5] <- NULL
+
+mdh_pvc <- rbind(ds6_fall20bmp1, dry25_fall20bmp1, ss41_fall20bmp1, abovepool39_fall20bmp1, sonde21c_fall20bmp1)
+mdh_pvc
+write.csv(mdh_pvc, "mdh_pvc.csv")
+```
+
+```{r}
+#make daily sums
+as_tibble(mdh_pvc)
+mdh_pvc <- mutate(mdh_pvc, wet200 = case_when(int > 200 ~ "Y",
+                                                int <= 200 ~ "N"))
+mdh_pvc <- mutate(mdh_pvc, wet400 = case_when(int > 400 ~ "Y",
+                                                int <= 400 ~ "N"))
+mdh_pvc <- mutate(mdh_pvc, wetRC = case_when(RC > 0.5 ~ "Y",
+                                                int <= 0.5 ~ "N"))
+
+#counts of yeses, or #wet readings per day
+#RUN SEPARATELY TO GET NEW COL
+dailysums_w200 <- mdh_pvc %>% filter(wet200=="Y") %>%
+  group_by(site, 
+           date) %>%
+  summarise(count_w200 = length(wet200))
+dailysums_w400 <- mdh_pvc %>% filter(wet400=="Y") %>%
+  group_by(site, 
+           date) %>%
+  summarise(count_w400 = length(wet400))
+dailysums_wRC <- mdh_pvc %>% filter(wetRC=="Y") %>%
+  group_by(site, 
+           date) %>%
+  summarise(count_RC = length(wetRC))
+
+#for each day is there a 60% wet signal?
+dailysums_w200 <- mutate(dailysums_w200, day60 = case_when(count_w200 > 86 ~ "wetday", count_w200 <= 86 ~ "dryday")) 
+dailysums_w400 <- mutate(dailysums_w400, day60 = case_when(count_w400 > 86 ~ "wetday", count_w400 <= 86 ~ "dryday")) 
+dailysums_wRC <- mutate(dailysums_wRC, day60 = case_when(count_RC > 86 ~ "wetday", count_RC <= 86 ~ "dryday")) 
+dailysums_w200
+dailysums_w400
+dailysums_wRC
+```
+
+how do I make those quilty plots
+```{r}
+dailysums_w200 %>% ggplot(aes(x = date, y = site, fill = day60)) +
+  geom_tile() +
+  theme_minimal() +
+  ggtitle("200 cutoff")
+dailysums_w400 %>% ggplot(aes(x = date, y = site, fill = day60)) +
+  geom_tile() +
+  theme_minimal() +
+  ggtitle("400 cutoff")
+dailysums_wRC %>% ggplot(aes(x = date, y = site, fill = day60)) +
+  geom_tile() +
+  theme_minimal() +
+  ggtitle("RC cutoff")
+#WHY so much missing data?
+
+dailysums_w200 %>% ggplot(aes(x = date, y = count_w200, colour = site)) +
+  geom_point()
+#look closer at sonde
+ggplot(sonde21c_fall20bmp1, aes(x = dt, y = int)) +
+         geom_point()
+ggplot(sonde21c_fall20bmp1, aes(x = date, y = int)) +
+         geom_point()
+```
+
+
+###
+
+###
+PLOTS
+initial all data points plots
+```{r}
+#%RC
+ggplot(sonde21c_fall20bmp1) +
+  geom_point(aes(dt, RC), color="blue4") +
+  geom_point(data=ds6_fall20bmp1, aes(dt, RC), color="coral") +
+  geom_point(data=dry25_fall20bmp1, aes(dt, RC), color="darkgoldenrod3") +
+  geom_point(data=abovepool39_fall20bmp1, aes(dt, RC), color="cyan4") +
+  geom_point(data=ss41_fall20bmp1, aes(dt, RC), color="darkolivegreen")
+
+```
+
+```{r}
+#straight int
+ggplot(sonde21c_fall20bmp1) +
+  geom_point(aes(dt, int), color="blue4") +
+  geom_point(data=ds6_fall20bmp1, aes(dt, int), color="coral") +
+  geom_point(data=dry25_fall20bmp1, aes(dt, int), color="darkgoldenrod3") +
+  geom_point(data=abovepool39_fall20bmp1, aes(dt, int), color="cyan4") +
+  geom_point(data=ss41_fall20bmp1, aes(dt, int), color="darkolivegreen")
+
+```
+
+```{r}
+ggplot() +
+  geom_point(data=ds6_fall20bmp1, aes(dt, int), color="coral") +
+  geom_point(data=dry25_fall20bmp1, aes(dt, int), color="darkgoldenrod3") +
+  geom_point(data=ss41_fall20bmp1, aes(dt, int), color="darkolivegreen")
+```
+
